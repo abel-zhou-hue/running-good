@@ -2,14 +2,34 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
     <title>跑步打卡记录系统</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        /* 已移除左右分栏布局 - 界面简化 */
+        }
+        
+        /* 微信浏览器适配样式 */
+        .weui-fix {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        /* 微信浏览器字体优化 */
+        body.wechat {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
 
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -718,7 +738,7 @@
             }
             
             .records-table {
-                background-color: #3d3d3d;
+                background-color: #3d3d2d;
                 color: #e0e0e0;
             }
             
@@ -752,6 +772,94 @@
             .status-incomplete {
                 color: #f44336;
             }
+        }
+        
+        /* 微信浏览器专用优化 */
+        .wechat-optimized .container {
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            max-width: 100vw;
+        }
+        
+        .wechat-optimized .header {
+            border-radius: 0;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .wechat-optimized .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .wechat-optimized .main-content {
+            padding: 10px;
+            padding-bottom: 20px;
+        }
+        
+        .wechat-optimized .section {
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .wechat-optimized .section h2 {
+            font-size: 1.2em;
+            margin: -15px -15px 10px -15px;
+            padding: 10px 15px;
+        }
+        
+        .wechat-optimized .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            min-height: 40px;
+        }
+        
+        .wechat-optimized .runner-card {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .wechat-optimized .runner-name {
+            font-size: 1.1em;
+        }
+        
+        .wechat-optimized .stat-card {
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .wechat-optimized .stat-number {
+            font-size: 1.2em;
+        }
+        
+        .wechat-optimized .stat-label {
+            font-size: 0.8em;
+        }
+        
+        /* 微信浏览器安全区域适配 */
+        .wechat-safe-area {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        
+        /* 微信浏览器滚动优化 */
+        .wechat-scroll {
+            -webkit-overflow-scrolling: touch;
+            overflow-scrolling: touch;
+        }
+        
+        /* 微信浏览器点击效果优化 */
+        .wechat-tap {
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            tap-highlight-color: rgba(0,0,0,0);
         }
     </style>
     <!-- Tesseract.js OCR库引用已移除 - AI/OCR功能已清理 -->
@@ -1799,6 +1907,84 @@
             exportBtn.onclick = exportData;
             exportBtn.style.cssText = 'position: absolute; top: 20px; right: 20px;';
             header.appendChild(exportBtn);
+        });
+
+        // 微信浏览器检测和适配
+        function detectWeChatBrowser() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isWeChat = /micromessenger/i.test(ua);
+            
+            if (isWeChat) {
+                console.log('检测到微信浏览器，应用微信专用优化');
+                
+                // 添加微信优化类
+                document.body.classList.add('wechat-optimized');
+                document.documentElement.classList.add('wechat-safe-area');
+                
+                // 微信浏览器滚动优化
+                document.querySelector('.container').classList.add('wechat-scroll');
+                
+                // 为所有按钮和可点击元素添加微信点击优化
+                const clickableElements = document.querySelectorAll('.btn, .runner-card, .day-stat, .week-history-card');
+                clickableElements.forEach(element => {
+                    element.classList.add('wechat-tap');
+                });
+                
+                // 微信浏览器字体优化
+                document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+                
+                // 微信浏览器视口适配
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+                }
+                
+                // 微信浏览器安全区域适配
+                const safeAreaStyle = document.createElement('style');
+                safeAreaStyle.textContent = `
+                    .wechat-safe-area {
+                        padding-top: constant(safe-area-inset-top);
+                        padding-top: env(safe-area-inset-top);
+                        padding-bottom: constant(safe-area-inset-bottom);
+                        padding-bottom: env(safe-area-inset-bottom);
+                        padding-left: constant(safe-area-inset-left);
+                        padding-left: env(safe-area-inset-left);
+                        padding-right: constant(safe-area-inset-right);
+                        padding-right: env(safe-area-inset-right);
+                    }
+                `;
+                document.head.appendChild(safeAreaStyle);
+                
+                // 微信浏览器输入框优化
+                const inputs = document.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.style.fontSize = '16px'; // 防止微信浏览器缩放
+                    input.addEventListener('focus', function() {
+                        document.body.style.position = 'fixed';
+                        document.body.style.width = '100%';
+                    });
+                    input.addEventListener('blur', function() {
+                        document.body.style.position = '';
+                        document.body.style.width = '';
+                    });
+                });
+                
+                console.log('微信浏览器优化已完成');
+            }
+            
+            return isWeChat;
+        }
+        
+        // 页面加载完成后执行微信检测
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(detectWeChatBrowser, 100);
+        });
+        
+        // 窗口大小改变时重新适配
+        window.addEventListener('resize', function() {
+            if (document.body.classList.contains('wechat-optimized')) {
+                detectWeChatBrowser();
+            }
         });
     </script>
 </body>
